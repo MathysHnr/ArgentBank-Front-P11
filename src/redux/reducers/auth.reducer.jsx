@@ -4,6 +4,7 @@ import {
   LOGIN_FAIL,
   LOGOUT,
   GET_USERPROFILE,
+  EDIT_USERNAME,
 } from "../actions/type.actions";
 
 export const authReducer = (state = initialState, action) => {
@@ -24,6 +25,15 @@ export const authReducer = (state = initialState, action) => {
           ...state.user,
           firstname: action.payload.firstname,
           lastname: action.payload.lastname,
+          username: action.payload.username,
+        },
+      };
+    case EDIT_USERNAME:
+      return {
+        ...state,
+        status: "MODIFIED",
+        user: {
+          ...state.user,
           username: action.payload.username,
         },
       };
