@@ -7,3 +7,4 @@ export const REMEMBER_ME = "REMEMBER_ME";
 
 /* USER PROFILE */
 export const GET_USERPROFILE = "GET_USERPROFILE";
+export const EDIT_USERNAME = "EDIT_USERNAME";
