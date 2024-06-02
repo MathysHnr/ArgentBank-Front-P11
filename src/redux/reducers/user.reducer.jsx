@@ -4,6 +4,7 @@ import {
   LOGOUT,
 } from "../actions/type.actions";
 
+/* Initial user state */
 const initialState = {
   status: "VOID",
   firstname: null,
