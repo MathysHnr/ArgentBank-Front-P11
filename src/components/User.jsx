@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { updateUsername } from "../redux/actions/user.actions.jsx";
+import { editUsername } from "../redux/slices/user.slice";
 import { isValidName } from "../utils/regex.jsx";
 import "../sass/components/_UserProfile.scss";
 
@@ -48,7 +48,7 @@ function User() {
           type: "EDIT_USERNAME",
           payload: { username: data.body.userName },
         });
-        dispatch(updateUsername(username));
+        dispatch(editUsername(username));
         setDisplay(!display);
       } else {
         console.log("Invalid Fields");

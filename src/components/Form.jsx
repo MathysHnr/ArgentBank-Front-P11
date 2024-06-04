@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { loginFailed, loginSuccess } from "../redux/actions/auth.actions.jsx";
+import { loginFail, loginSuccess } from "../redux/slices/auth.slice";
 import { isValidEmail, isValidPassword } from "../utils/regex.jsx";
 import "../sass/components/_Form.scss";
 
@@ -50,7 +50,7 @@ function Form() {
         navigate("/profile");
       } else {
         const error = "Incorrect email/password";
-        dispatch(loginFailed(error));
+        dispatch(loginFail(error));
       }
     } catch (error) {
       console.error(error);
