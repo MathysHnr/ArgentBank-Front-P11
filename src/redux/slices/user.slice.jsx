@@ -21,8 +21,21 @@ const userSlice = createSlice({
       state.status = "VOID";
       state.userData = {};
     },
+    updateProfileSuccess(state, action) {
+      state.profile = action.payload;
+      state.error = null;
+    },
+    updateProfileFail(state, action) {
+      state.error = action.payload;
+    },
   },
 });
 
-export const { getUserProfile, editUsername, logout } = userSlice.actions;
+export const {
+  getUserProfile,
+  editUsername,
+  updateProfileSuccess,
+  updateProfileFail,
+  logout,
+} = userSlice.actions;
 export default userSlice.reducer;

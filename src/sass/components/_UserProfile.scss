@@ -2,9 +2,6 @@
   color: #fff;
   margin-bottom: 2rem;
 
-  h2 {
-    font-size: 2rem;
-  }
   .edit-button {
     background-color: #00bc77;
     border-color: #00bc77;
@@ -13,43 +10,41 @@
     margin-top: 1.5rem;
     padding: 0.625rem;
   }
-  .edit-input {
-    align-items: center;
-    display: flex;
-    gap: 7px;
-    justify-content: center;
-    margin-top: 20px;
-    & input {
-      border-radius: 2px;
-      height: 25px;
-      padding-left: 3px;
-      width: 110px;
+}
+
+.header-editname {
+  display: flex;
+  justify-content: center;
+  color: white;
+  margin-bottom: 2rem;
+
+  .input-wrapper {
+    flex-direction: column;
+    text-align: left;
+    margin-top: 1rem;
+
+    .label-gray {
+      background-color: #b2b2b2;
+      color: #5a5a5a;
+      pointer-events: none;
     }
-    *:disabled {
-      background-color: #c9c9c9;
-      color: #505050;
-    }
-  }
-  .buttons {
-    display: flex;
-    gap: 5px;
-    justify-content: center;
-    .edit-username-button {
-      background-color: #00bc77;
-      border: none;
-      border-color: #00bc77;
-      border-radius: 2px;
-      color: #fff;
+
+    label {
       font-weight: bold;
-      margin-top: 1.5rem;
-      padding: 0.625rem;
-      width: 120px;
+    }
+
+    input {
+      padding: 5px;
+      font-size: 1rem;
     }
   }
-  .error-message {
-    color: red;
-    font-weight: bold;
-    font-size: 1.1rem;
-    margin-top: 25px;
+
+  .header-button {
+    width: 40%;
+    padding: 10px;
+    margin: 10px;
+    background-color: #00bc77;
+    color: white;
+    border: none;
   }
 }

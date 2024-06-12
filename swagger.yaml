@@ -1,275 +1,132 @@
 swagger: "2.0"
 info:
-  title: Bank Argent API documentation
-  description: Contains all available API endpoints in this codebase
-  version: "2.0.0"
-  termsOfService: "http://swagger.io/terms/"
+  title: Argent Bank Transaction API
+  description: API model proposal for user transactions
+  version: 2.0.0
+  termsOfService: http://swagger.io/terms/
 host: localhost:3001
 basePath: /api/v2
 schemes:
   - http
 paths:
-  /user/login:
-    post:
-      tags:
-        - User Module
-      summary: Login
-      description: API for Login
-      parameters:
-        - in: body
-          name: body
-          description: Login Payload
-          required: true
-          schema:
-            $ref: "#/definitions/Login"
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: Login Successfully
-          schema:
-            $ref: "#/definitions/LoginResponse"
-        "400":
-          description: Invalid Fields
-        "500":
-          description: Internal Server Error
-  /user/signup:
-    post:
-      tags:
-        - User Module
-      summary: Signup
-      description: API for Signup
-      parameters:
-        - in: body
-          name: body
-          description: Signup Payload
-          required: true
-          schema:
-            $ref: "#/definitions/User"
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: Signup Successfully
-          schema:
-            $ref: "#/definitions/ApiResponse"
-        "400":
-          description: Invalid Fields
-        "500":
-          description: Internal Server Error
-  /user/profile:
-    post:
-      security:
-        - Bearer: []
-      tags:
-        - User Module
-      summary: User Profile API
-      description: API for fetching a user profile
-      #produces:
-      # - application/json
-      responses:
-        "200":
-          description: User profile retrieved successully
-          schema:
-            $ref: "#/definitions/ApiResponse"
-        "400":
-          description: Invalid Fields
-        "500":
-          description: Internal Server Error
-    put:
-      security:
-        - Bearer: []
-      tags:
-        - User Module
-      summary: User Profile API
-      description: API for updating a user profile
-      parameters:
-        - in: body
-          name: body
-          description: Update user profile attributes
-          required: true
-          schema:
-            $ref: "#/definitions/UserProfile"
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: User profile retrieved successully
-          schema:
-            $ref: "#/definitions/ApiResponse"
-        "400":
-          description: Invalid Fields
-        "500":
-          description: Internal Server Error
-  /user/account:
-    post:
-      tags:
-        - Accounts and Transactions Module
-      summary: All accounts
-      description: API for retrieving all user account
-      security:
-        - Bearer: []
-      responses:
-        "200":
-          description: All accounts retrieved successfully
-          schema:
-            type: array
-            items:
-              $ref: "#/definitions/AccountResponse"
-        "401":
-          description: Unauthorized user
-        "500":
-          description: Internal Server Error
   /account/{accountID}/transactions:
-    post:
-      tags:
-        - Accounts and Transactions Module
-      summary: Account transactions
-      description: API for retrieving list of transactions assiocated with an account
+    get:
       security:
         - Bearer: []
+      tags:
+        - Transaction module
+      summary: Transactions Current Month API
+      description: API for fetching current month transactions
       parameters:
+        - in: header
+          name: Authorization
+          description: Attach Bearer JWT token
+          required: true
+          type: string
         - in: path
           name: accountID
-          description: ID of an account
+          description: Id of the account
           required: true
           type: string
+      produces:
+        - application/json
       responses:
         "200":
-          description: All transactions retrieved successfully
+          description: User transactions retrieved successfully
           schema:
             type: array
             items:
-              $ref: "#/definitions/TransactionsResponse"
+              $ref: "#/definitions/allTransactionsResponse"
+        "400":
+          description: Invalid Fields
         "401":
-          description: Unauthorized user
+          description: Unauthorized
         "404":
-          description: Account not found
+          description: Transactions not found
         "500":
           description: Internal Server Error
-  /transactions/{transactionID}/category:
-    put:
-      tags:
-        - Accounts and Transactions Module
-      summary: Update transaction's category
-      description: API for updating category of transaction
+
+  /account/{accountID}/transaction/{idTransaction}:
+    get:
       security:
         - Bearer: []
+      tags:
+        - Transaction module
+      summary: Transaction Show API
+      description: API for showing a transaction
       parameters:
-        - in: path
-          name: transactionID
-          description: ID of a transaction
+        - in: header
+          name: Authorization
+          description: Attach Bearer JWT token
           required: true
           type: string
-        - in: body
-          name: category
-          description: Modified transaction's category
+        - in: path
+          name: accountID
+          description: Id of the account
           required: true
-          schema:
-            $ref: "#/definitions/TransactionCategory"
+          type: string
+        - in: path
+          name: idTransaction
+          description: Id of the transaction
+          required: true
+          type: string
+      produces:
+        - application/json
       responses:
         "200":
-          description: Transaction's category modified successfully
+          description: Transaction retrieved successfully
           schema:
-            $ref: "#/definitions/TransactionCategory"
+            $ref: "#/definitions/ApiTransactionResponse"
+        "400":
+          description: Invalid Fields
         "401":
-          description: Unauthorized user
+          description: Unauthorized
         "404":
           description: Transaction not found
         "500":
-          description: Internal Servor Error
-  /transactions/{transactionID}/note:
-    post:
-      tags:
-        - Accounts and Transactions Module
-      summary: Add transaction's note
-      description: API for adding a note to a transaction
-      security:
-        - Bearer: []
-      parameters:
-        - in: path
-          name: transactionID
-          description: ID of a transaction
-          required: true
-          type: string
-        - in: body
-          name: note
-          description: New transaction's note
-          required: true
-          schema:
-            $ref: "#/definitions/TransactionNote"
-      responses:
-        "200":
-          description: Note added to the transaction successfully
-          schema:
-            $ref: "#/definitions/TransactionResponseNote"
-        "401":
-          description: Unauthorized user
-        "404":
-          description: Note not created
-        "500":
           description: Internal Server Error
-  /transactions/{transactionID}/note/{noteID}:
     put:
-      tags:
-        - Accounts and Transactions Module
-      summary: Modify transaction's note
-      description: API for modifying a note of a transaction
       security:
         - Bearer: []
+      tags:
+        - Transaction module
+      summary: Transaction Edit API
+      description: API for updating a transaction
       parameters:
-        - in: path
-          name: transactionID
-          description: ID of a transaction
+        - in: header
+          name: Authorization
+          description: Attach Bearer JWT token
           required: true
           type: string
         - in: path
-          name: noteID
-          description: ID of a note
+          name: accountID
+          description: Id of the account
+          required: true
+          type: string
+        - in: path
+          name: idTransaction
+          description: Id of the transaction that needs to be edited
           required: true
           type: string
         - in: body
-          name: note
-          description: Modify transaction's note
+          name: body
+          description: Edit transaction
           required: true
           schema:
-            $ref: "#/definitions/TransactionNote"
+            $ref: "#/definitions/editTransaction"
+      produces:
+        - application/json
       responses:
         "200":
-          description: Note modified successfully
+          description: Transaction edited successfully
           schema:
-            $ref: "#/definitions/TransactionResponseNote"
+            $ref: "#/definitions/ApiTransactionResponse"
+        "400":
+          description: Invalid Fields
         "401":
-          description: Unauthorized user
+          description: Unauthorized
         "404":
-          description: Note not modified
-        "500":
-          description: Internal Server Error
-    delete:
-      tags:
-        - Accounts and Transactions Module
-      summary: Delete transaction's note
-      description: API for deleting a note of a transaction
-      security:
-        - Bearer: []
-      parameters:
-        - in: path
-          name: transactionID
-          description: ID of a transaction
-          required: true
-          type: string
-        - in: path
-          name: noteID
-          description: ID of a note
-          required: true
-          type: string
-      responses:
-        "200":
-          description: Note deleted successfully
-        "401":
-          description: Unauthorized user
-        "404":
-          description: Note not deleted
+          description: Transaction not found
         "500":
           description: Internal Server Error
 securityDefinitions:
@@ -278,72 +135,7 @@ securityDefinitions:
     name: Authorization
     in: header
 definitions:
-  User:
-    properties:
-      email:
-        type: string
-        description: user email
-      password:
-        type: string
-        description: user password
-      firstName:
-        type: string
-        description: user first name
-      lastName:
-        type: string
-        description: user last name
-      userName:
-        type: string
-        description: user public name
-  Login:
-    properties:
-      email:
-        type: string
-        description: user email
-      password:
-        type: string
-        description: user password
-  ApiResponse:
-    type: object
-    properties:
-      status:
-        type: integer
-      message:
-        type: string
-      body:
-        type: object
-        properties:
-          id:
-            type: string
-          email:
-            type: string
-  LoginResponse:
-    type: object
-    properties:
-      token:
-        type: string
-  UserProfile:
-    type: object
-    properties:
-      userName:
-        type: string
-  AccountResponse:
-    type: object
-    properties:
-      accountID:
-        type: string
-        description: account ID
-      accountName:
-        type: string
-        description: account name
-      accountCurrency:
-        type: string
-        description: account currency
-      currentBalance:
-        type: number
-        description: current account balance
-        format: double
-  TransactionsResponse:
+  allTransactionsResponse:
     type: object
     properties:
       transactionID:
@@ -355,16 +147,16 @@ definitions:
       date:
         type: string
         format: date-time
-        description: date of transaction
+        description: date of the transaction
       description:
         type: string
         description: description of transaction
       amount:
         type: number
-        description: transaction amout
+        description: transaction amount
       balance:
         type: number
-        description: available balance
+        description: avaible balance
         format: double
       category:
         type: string
@@ -372,20 +164,61 @@ definitions:
       note:
         type: string
         description: user note
-  TransactionCategory:
-    type: object
+  ApiTransactionResponse:
+    properties:
+      status:
+        type: integer
+      message:
+        type: string
+      body:
+        type: object
+        properties:
+          transactionID:
+            type: string
+            description: Id of the transaction
+          transactionType:
+            type: string
+            description: type of the transaction
+          date:
+            type: string
+            description: Date of the transaction
+          description:
+            type: string
+            description: Description of the transaction
+          amount:
+            type: number
+            description: Amount of the transaction
+          balance:
+            type: number
+            description: available balance
+          category:
+            type: string
+            description: Category of the transaction
+          notes:
+            type: string
+            description: Notes of the transaction
+  addTransaction:
+    properties:
+      accountId:
+        type: string
+        description: AccountId containing the new transaction
+      amount:
+        type: number
+        description: Amount of the new transaction
+      description:
+        type: string
+        description: Description of the new transaction
+      category:
+        type: string
+        description: Category of the new transaction
+      notes:
+        type: string
+        description: Notes of the new transaction
+  editTransaction:
     properties:
       category:
         type: string
-  TransactionNote:
-    type: object
-    properties:
-      note:
+        description: New category of this transaction
+      notes:
         type: string
-  TransactionResponseNote:
-    type: object
-    properties:
-      note:
-        type: string
-      noteID:
-        type: string
+        description: New notes of this transaction

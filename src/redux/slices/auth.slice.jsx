@@ -9,7 +9,15 @@ const initialState = {
 
 const authSlice = createSlice({
   name: "auth",
-  initialState,
+  initialState: {
+    user: {
+      firstName: "",
+      lastName: "",
+      userName: "",
+    },
+    token: null,
+    error: null,
+  },
   reducers: {
     loginSuccess: (state, action) => {
       state.status = "SUCCEEDED";
@@ -28,8 +36,14 @@ const authSlice = createSlice({
       state.token = null;
       state.error = null;
     },
+    updateUserName: (state, action) => {
+      state.user.firstName = action.payload.firstName;
+      state.user.lastName = action.payload.lastName;
+      state.user.userName = action.payload.userName;
+    },
   },
 });
 
-export const { loginSuccess, loginFail, logout } = authSlice.actions;
+export const { loginSuccess, loginFail, logout, updateUserName } =
+  authSlice.actions;
 export default authSlice.reducer;

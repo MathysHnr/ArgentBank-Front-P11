@@ -1,126 +1,99 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { editUsername } from "../redux/slices/user.slice";
-import { isValidName } from "../utils/regex.jsx";
+import { editUsernameAPI, loadUserProfile } from "../redux/slices/api";
+import { updateUserName } from "../redux/slices/auth.slice";
 import "../sass/components/_UserProfile.scss";
 
 function User() {
-  /* Updates user data on profile page from state redux */
   const token = useSelector((state) => state.auth.token);
-  const userData = useSelector((state) => state.user.userData);
-  /* Manages the appearance of the username modification form */
-  const [display, setDisplay] = useState(true);
-  /* Get username */
-  const [userName, setUserName] = useState("");
-  /* Handle error message */
-  const [errorMessage, setErrorMessage] = useState("");
+  const user = useSelector((state) => state.auth.user);
   const dispatch = useDispatch();
+  const [isEditing, setIsEditing] = useState(false);
 
-  /* Asynchronous username update function */
-  const handleSubmitUsername = async (event) => {
-    event.preventDefault();
-    if (!isValidName(userName)) {
-      setErrorMessage("Invalid username");
-      return;
-    } else {
-      setErrorMessage("");
+  const [newUsername, setNewUsername] = useState(user.userName);
+
+  useEffect(() => {
+    if (token) {
+      loadUserProfile(dispatch, token);
     }
-    try {
-      const response = await fetch(
-        "http://localhost:3001/api/v1/user/profile",
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ userName }),
-        }
-      );
-      if (response.ok) {
-        const data = await response.json();
-        const username = data.body.userName;
-        /* 
-                    Checking that the query response is indeed retrieved
-                    console.log(data) 
-                */
-        dispatch({
-          type: "EDIT_USERNAME",
-          payload: { username: data.body.userName },
-        });
-        dispatch(editUsername(username));
-        setDisplay(!display);
-      } else {
-        console.log("Invalid Fields");
-      }
-    } catch (error) {
-      console.error(error);
+    setNewUsername(user.userName);
+  }, [dispatch, token, user.userName]);
+
+  const saveUsername = async () => {
+    const updatedUser = await editUsernameAPI(token, newUsername, user);
+
+    if (updatedUser) {
+      dispatch(updateUserName(updatedUser));
+      setIsEditing(false);
     }
   };
 
   return (
-    <div className="header">
-      {display ? (
-        <div>
-          <h2>
-            Welcome back
-            <br />
-            {userData.firstname} {userData.lastname} !
-          </h2>
-          <button className="edit-button" onClick={() => setDisplay(!display)}>
+    <main>
+      {isEditing ? (
+        <div className="header-editname">
+          <div>
+            <h1>Edit user info</h1>
+            <form>
+              <div className="input-wrapper">
+                <label htmlFor="username">User name</label>
+                <input
+                  type="text"
+                  id="username"
+                  value={newUsername}
+                  onChange={(e) => setNewUsername(e.target.value)}
+                />
+              </div>
+
+              <div className="input-wrapper">
+                <label htmlFor="firstName">First Name</label>
+                <input
+                  type="text"
+                  id="firstName"
+                  value={user?.firstName}
+                  className="label-gray"
+                  readOnly
+                />
+              </div>
+
+              <div className="input-wrapper">
+                <label htmlFor="lastName">Last Name</label>
+                <input
+                  type="text"
+                  id="lastName"
+                  value={user?.lastName}
+                  className="label-gray"
+                  readOnly
+                />
+              </div>
+            </form>
+            <button
+              type="submit"
+              className="header-button"
+              onClick={saveUsername}
+            >
+              Save
+            </button>
+            <button
+              type="button"
+              className="header-button"
+              onClick={() => setIsEditing(false)}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="header">
+          <h1>
+            Welcome back <br /> {user?.firstName} {user?.lastName}!
+          </h1>
+          <button className="edit-button" onClick={() => setIsEditing(true)}>
             Edit Name
           </button>
         </div>
-      ) : (
-        <div>
-          <h2>Edit user info</h2>
-          <form>
-            <div className="edit-input">
-              <label htmlFor="username">User name:</label>
-              <input
-                type="text"
-                id="username"
-                defaultValue={userData.username}
-                onChange={(event) => setUserName(event.target.value)}
-              />
-            </div>
-            <div className="edit-input">
-              <label htmlFor="firstname">First name:</label>
-              <input
-                type="text"
-                id="firstname"
-                defaultValue={userData.firstname}
-                disabled={true}
-              />
-            </div>
-            <div className="edit-input">
-              <label htmlFor="lastname">Last name:</label>
-              <input
-                type="text"
-                id="lastname"
-                defaultValue={userData.lastname}
-                disabled={true}
-              />
-            </div>
-            <div className="buttons">
-              <button
-                className="edit-username-button"
-                onClick={handleSubmitUsername}
-              >
-                Save
-              </button>
-              <button
-                className="edit-username-button"
-                onClick={() => setDisplay(!display)}
-              >
-                Cancel
-              </button>
-            </div>
-            {errorMessage && <p className="error-message">{errorMessage}</p>}
-          </form>
-        </div>
       )}
-    </div>
+    </main>
   );
 }
 

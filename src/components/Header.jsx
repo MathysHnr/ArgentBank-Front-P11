@@ -1,24 +1,26 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Logo from "../assets/images/argentBankLogo.webp";
 import { logout } from "../redux/slices/auth.slice";
+import { loadUserProfile } from "../redux/slices/api";
 import "../sass/components/_Header.scss";
 
 function Header() {
-  /* Updates user data on header component from state redux */
-  const isConnected = useSelector((state) => state.auth.token);
-  const firstname = useSelector((state) => state.user.userData.firstname);
-
+  const token = useSelector((state) => state.auth.token);
+  const user = useSelector((state) => state.auth.user);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
-  const logoutHandler = () => {
+  const handleLogout = () => {
+    localStorage.removeItem("token");
     dispatch(logout());
-    sessionStorage.clear();
-    localStorage.clear();
-    navigate("/");
   };
+
+  useEffect(() => {
+    if (token) {
+      dispatch(loadUserProfile(token));
+    }
+  }, [dispatch, token]);
   return (
     <header>
       <h1 className="sr-only">Argent Bank</h1>
@@ -26,13 +28,13 @@ function Header() {
         <Link to="/">
           <img src={Logo} alt="Bank Logo" />
         </Link>
-        {isConnected ? (
+        {token ? (
           <div className="connected">
-            <Link to="/profile">
+            <Link to="/user">
               <i className="fa-solid fa-2x fa-circle-user" />
-              <p>{firstname}</p>
+              {user?.userName}
             </Link>
-            <Link to="/" onClick={logoutHandler}>
+            <Link to="/" onClick={handleLogout}>
               <i className="fa-solid fa-arrow-right-from-bracket" />
               <p> Sign out </p>
             </Link>

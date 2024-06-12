@@ -1,58 +1,46 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { loginFail, loginSuccess } from "../redux/slices/auth.slice";
-import { isValidEmail, isValidPassword } from "../utils/regex.jsx";
+import { loginUser } from "../redux/slices/api";
 import "../sass/components/_Form.scss";
 
 function Form() {
-  /* Allows you to retrieve the data entered by the user in the form */
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-  /* Indicates an error message if data is invalid */
-  const [errorMessage, setErrorMessage] = useState("");
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const [error, setError] = useState(null);
 
-  /* Asynchronous form function */
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    /* Handle error message */
-    if (!isValidEmail(email)) {
-      setErrorMessage("Invalid email adress");
-      return;
+  useEffect(() => {
+    const rememberedEmail = localStorage.getItem("rememberedEmail");
+    const rememberedPassword = localStorage.getItem("rememberedPassword");
+    if (rememberedEmail) {
+      setEmail(rememberedEmail);
+      setPassword(rememberedPassword);
+      setRememberMe(true);
     }
-    if (!isValidPassword(password)) {
-      setErrorMessage("Invalid password");
-      return;
-    }
+  }, []);
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    const userInformation = { email, password };
+
     try {
-      const response = await fetch("http://localhost:3001/api/v1/user/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-      if (response.ok) {
-        const data = await response.json();
-        /* 
-                    Checking that the query response is indeed retrieved
-                    console.log(data) 
-                */
-        const token = data.body.token;
-        dispatch(loginSuccess(token));
-        sessionStorage.setItem("token", token);
+      const result = await dispatch(loginUser(userInformation));
+      if (result.payload) {
+        setEmail("");
+        setPassword("");
+
         if (rememberMe) {
-          localStorage.setItem("token", token);
+          sessionStorage.setItem("rememberedEmail", email);
+          sessionStorage.setItem("rememberedPassword", password);
         }
-        navigate("/profile");
-      } else {
-        const error = "Incorrect email/password";
-        dispatch(loginFail(error));
+
+        navigate("/user");
       }
     } catch (error) {
+      setError("Erreur dans l'email et/ou le mot de passe");
       console.error(error);
     }
   };
@@ -61,7 +49,7 @@ function Form() {
     <section className="sign-in-content">
       <i className="fa-solid fa-circle-user"></i>
       <h2>Sign In</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleLogin}>
         <div className="input-wrapper">
           <label htmlFor="username">Username</label>
           <input
@@ -90,7 +78,7 @@ function Form() {
           <label htmlFor="remember-me">Remember me</label>
         </div>
         <button className="sign-in-button">Sign In</button>
-        {errorMessage && <p className="error-message">{errorMessage}</p>}
+        {error && <p className="error-message">{error}</p>}
       </form>
     </section>
   );
