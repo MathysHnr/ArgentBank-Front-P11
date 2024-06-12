@@ -141,9 +141,6 @@ definitions:
       transactionID:
         type: string
         description: transaction ID
-      transactionType:
-        type: string
-        description: type of transaction
       date:
         type: string
         format: date-time
@@ -158,12 +155,6 @@ definitions:
         type: number
         description: avaible balance
         format: double
-      category:
-        type: string
-        description: name of the category
-      note:
-        type: string
-        description: user note
   ApiTransactionResponse:
     properties:
       status:
